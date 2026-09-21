@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Questões · Auxiliar de Saúde Bucal</title>
+  <meta name="description" content="Pratique questões de concursos públicos para Auxiliar de Saúde Bucal, com correção imediata, sem repetição e avaliação de dificuldade.">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%B7%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v=versao) }}">
+  <script defer src="{{ url_for('static', filename='js/auth.js', v=versao) }}"></script>
+  <script defer src="{{ url_for('static', filename='js/app.js', v=versao) }}"></script>
+  <script type="application/json" id="config-app">{{ {
+    "totalQuestoes": total_questoes,
+    "versaoPayload": versao_payload,
+    "bancoDisponivel": banco_disponivel,
+    "authDisponivel": auth_disponivel,
+    "niveis": {"min": 1, "max": 5}
+  } | tojson }}</script>
+</head>
+<body>
+  <div class="fundo" aria-hidden="true"></div>
+
+  <div class="app">
+    <header class="topo">
+      <div class="marca">
+        <span class="marca-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5.5C10.5 4 9 3 7.5 3 5 3 3.5 5 3.5 8c0 2 .6 3.4 1.2 5.2.5 1.5.7 2.6.9 4.3.2 1.7.7 3.5 1.9 3.5 1.4 0 1.6-2 1.9-3.7.2-1.3.6-2.3 1.6-2.3s1.4 1 1.6 2.3c.3 1.7.5 3.7 1.9 3.7 1.2 0 1.7-1.8 1.9-3.5.2-1.7.4-2.8.9-4.3.6-1.8 1.2-3.2 1.2-5.2 0-3-1.5-5-4-5-1.5 0-3 1-4.5 2.5Z"/>
+          </svg>
+        </span>
+        <div class="marca-texto">
+          <h1>Questões de Concurso</h1>
+          <p>Auxiliar de Saúde Bucal · {{ total_questoes }} questões</p>
+        </div>
+      </div>
+      <div class="topo-acoes">
+        <a class="btn btn-fantasma btn-pequeno" href="/dashboard">📊 Painel</a>
+        <div class="area-conta" id="area-conta">
+          <a class="btn btn-fantasma btn-pequeno" href="/entrar">Entrar</a>
+        </div>
+        <button type="button" class="btn-icone" id="btn-tema" aria-label="Alternar entre tema claro e escuro" title="Alternar tema claro/escuro">
+        <svg class="icone icone-lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>
+        </svg>
+        <svg class="icone icone-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+      </button>
+    </header>
+
+    <section class="painel" id="painel" aria-label="Filtros e desempenho" hidden>
+      <div class="painel-filtros">
+        <label class="campo" for="sel-banca">
+          <span>Banca</span>
+          <select id="sel-banca"></select>
+        </label>
+        <label class="campo" for="sel-disciplina">
+          <span>Disciplina</span>
+          <select id="sel-disciplina"></select>
+        </label>
+        <label class="campo" for="sel-prova">
+          <span>Prova (órgão · ano)</span>
+          <select id="sel-prova"></select>
+        </label>
+        <label class="campo" for="sel-dificuldade">
+          <span>Dificuldade</span>
+          <select id="sel-dificuldade" disabled></select>
+        </label>
+      </div>
+
+      <div class="painel-desempenho">
+        <div class="barra" id="barra" role="progressbar" aria-label="Progresso da seleção" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="barra-preenchimento" id="barra-preenchimento"></span>
+        </div>
+        <ul class="metricas">
+          <li><strong id="m-respondidas">0/0</strong><span>respondidas</span></li>
+          <li><strong id="m-acertos" class="pos">0</strong><span>acertos</span></li>
+          <li><strong id="m-erros" class="neg">0</strong><span>erros</span></li>
+          <li><strong id="m-aproveitamento">—</strong><span>aproveitamento</span></li>
+        </ul>
+        <button type="button" class="btn btn-fantasma btn-pequeno" id="btn-reiniciar">Reiniciar progresso</button>
+      </div>
+    </section>
+
+    <main id="conteudo">
+      <section class="cartao tela-inicio" id="tela-inicio">
+        <div id="inicio-carregando" class="carregando">
+          <span class="spinner" aria-hidden="true"></span>
+          <h2>Carregando o banco de questões</h2>
+          <p id="carregando-texto">São {{ total_questoes }} questões. Na primeira visita o download é feito uma única vez e fica guardado no seu navegador.</p>
+        </div>
+
+        <div id="inicio-erro" hidden>
+          <h2>Não foi possível carregar as questões</h2>
+          <p class="destaque-texto" id="inicio-erro-texto">Verifique sua conexão e tente de novo.</p>
+          <div class="acoes">
+            <button type="button" class="btn btn-primario" id="btn-recarregar">Tentar novamente</button>
+          </div>
+        </div>
+
+        <div id="inicio-pronto" hidden>
+          <h2>Bora treinar?</h2>
+          <p class="destaque-texto">
+            As <strong id="inicio-total">{{ total_questoes }}</strong> questões já estão carregadas aqui no seu navegador.
+            Nenhuma pergunta se repete: o app sorteia as questões e guarda o seu progresso.
+          </p>
+          <ul class="destaques">
+            <li><span class="ponto ponto-certo" aria-hidden="true"></span>Correção imediata: verde para acerto, vermelho para erro</li>
+            <li><span class="ponto ponto-primario" aria-hidden="true"></span>Filtre por disciplina, banca, prova e dificuldade</li>
+            <li><span class="ponto ponto-primario" aria-hidden="true"></span>Avalie a dificuldade de 1 a 5 e ajude a ranquear as questões</li>
+          </ul>
+          <p class="aviso-vazio" id="aviso-vazio" hidden>Nenhuma questão encontrada com essa combinação de filtros. Ajuste a disciplina, a banca, a prova ou a dificuldade para continuar.</p>
+          <div class="acoes">
+            <button type="button" class="btn btn-primario" id="btn-comecar">Começar a praticar</button>
+            <a class="btn btn-secundario" href="/dashboard">Painel de análise</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="cartao tela-questao" id="tela-questao" hidden>
+        <div class="meta" id="q-meta"></div>
+        <p class="nota" id="q-nota"></p>
+        <p class="enunciado" id="q-enunciado"></p>
+        <div class="alternativas" id="q-alternativas" role="group" aria-label="Alternativas"></div>
+        <p class="retorno" id="q-retorno" role="status" aria-live="polite" hidden></p>
+        <div class="acoes">
+          <button type="button" class="btn btn-fantasma" id="btn-anterior">← Voltar</button>
+          <button type="button" class="btn btn-fantasma btn-avancar" id="btn-pular">Pular questão →</button>
+          <button type="button" class="btn btn-primario btn-avancar" id="btn-proxima" hidden>Próxima questão →</button>
+        </div>
+
+        <div class="dificuldade" id="dificuldade" hidden>
+          <div class="dificuldade-topo">
+            <span class="dificuldade-titulo">Qual a dificuldade desta questão?</span>
+            <span class="dificuldade-acoes">
+              <span class="dificuldade-valor" id="dificuldade-valor">Opcional, ainda não avaliada</span>
+              <button type="button" class="btn-link" id="btn-remover-nota" hidden>Remover avaliação</button>
+            </span>
+          </div>
+          <div class="escala" id="escala" role="group" aria-label="Dificuldade de 1 (muito fácil) a 5 (muito difícil)"></div>
+          <div class="escala-legenda">
+            <span>1 · Mais fácil</span>
+            <span>5 · Mais difícil</span>
+          </div>
+        </div>
+
+        <div class="anotacao" id="anotacao" hidden>
+          <p class="anotacao-login" id="anotacao-login" hidden>
+            <a class="btn-link" href="/entrar">Entre na sua conta</a> para salvar anotações nas questões.
+          </p>
+          <button type="button" class="btn-link" id="btn-anotacao">✎ Adicionar anotação sobre essa questão</button>
+          <div class="anotacao-exibida" id="anotacao-exibida" hidden>
+            <div class="anotacao-topo">
+              <span class="anotacao-rotulo">Anotação</span>
+              <span class="anotacao-acoes">
+                <button type="button" class="btn-link" id="btn-editar-anotacao">Editar</button>
+                <button type="button" class="btn-link btn-link-perigo" id="btn-remover-anotacao">Remover</button>
+              </span>
+            </div>
+            <p id="anotacao-texto"></p>
+          </div>
+          <form class="anotacao-form" id="anotacao-form" hidden>
+            <label for="anotacao-campo">Sua anotação sobre esta questão</label>
+            <textarea id="anotacao-campo" rows="3" maxlength="2000" placeholder="Ex.: revisar esta depois, caiu em prova parecida, decorar as fases do tratamento..."></textarea>
+            <div class="acoes">
+              <button type="submit" class="btn btn-primario btn-pequeno" id="btn-salvar-anotacao">Salvar anotação</button>
+              <button type="button" class="btn btn-fantasma btn-pequeno" id="btn-cancelar-anotacao">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="reporte" id="reporte" hidden>
+          <button type="button" class="btn-link" id="btn-reportar">⚑ Reportar erro nesta questão</button>
+          <form class="reporte-form" id="reporte-form" hidden>
+            <label for="reporte-descricao">O que está errado? (opcional)</label>
+            <textarea id="reporte-descricao" rows="3" maxlength="2000" placeholder="Ex.: gabarito divergente, enunciado incompleto, alternativa repetida..."></textarea>
+            <div class="acoes">
+              <button type="submit" class="btn btn-primario btn-pequeno" id="btn-enviar-reporte">Enviar relato</button>
+              <button type="button" class="btn btn-fantasma btn-pequeno" id="btn-cancelar-reporte">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <p class="atalho">Atalhos: <kbd>A</kbd>–<kbd>E</kbd> ou <kbd>1</kbd>–<kbd>5</kbd> respondem, <kbd>←</kbd> <kbd>→</kbd> navegam e <kbd>Enter</kbd> avança.</p>
+      </section>
+
+      <section class="cartao tela-fim" id="tela-fim" hidden>
+        <div class="fim-emoji" aria-hidden="true">🎉</div>
+        <h2 id="fim-titulo">Rodada concluída!</h2>
+        <p id="fim-texto"></p>
+        <ul class="metricas metricas-fim">
+          <li><strong id="f-total">0</strong><span>questões na rodada</span></li>
+          <li><strong id="f-acertos" class="pos">0</strong><span>acertos</span></li>
+          <li><strong id="f-erros" class="neg">0</strong><span>erros</span></li>
+          <li><strong id="f-aproveitamento">—</strong><span>aproveitamento</span></li>
+        </ul>
+        <div class="acoes">
+          <button type="button" class="btn btn-primario" id="btn-continuar" data-acao="novos">Continuar</button>
+          <button type="button" class="btn btn-secundario" id="btn-refazer-erradas" hidden>Refazer as que errei</button>
+          <button type="button" class="btn btn-fantasma" id="btn-recomecar">Recomeçar do zero</button>
+          <button type="button" class="btn btn-fantasma" id="btn-inicio">Voltar ao início</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="rodape">
+      <p>Questões de provas reais para <strong>Auxiliar de Saúde Bucal</strong>. Revise os erros com calma — é assim que a nota sobe.</p>
+      <p class="rodape-links">
+        <a class="btn-link" id="link-anotacoes" href="/anotacoes">✎ Ver questões anotadas</a>
+        <a class="btn-link" href="/dashboard">📊 Painel de análise</a>
+      </p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Questões de Concurso</title>
+  <meta name="theme-color" content="#0f766e">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%B7%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v=versao) }}">
+  <script defer src="{{ url_for('static', filename='js/auth.js', v=versao) }}"></script>
+  <script defer src="{{ url_for('static', filename='js/entrar.js', v=versao) }}"></script>
+</head>
+<body>
+  <div class="fundo" aria-hidden="true"></div>
+
+  <div class="app app-estreito">
+    <header class="topo">
+      <div class="marca">
+        <span class="marca-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5.5C10.5 4 9 3 7.5 3 5 3 3.5 5 3.5 8c0 2 .6 3.4 1.2 5.2.5 1.5.7 2.6.9 4.3.2 1.7.7 3.5 1.9 3.5 1.4 0 1.6-2 1.9-3.7.2-1.3.6-2.3 1.6-2.3s1.4 1 1.6 2.3c.3 1.7.5 3.7 1.9 3.7 1.2 0 1.7-1.8 1.9-3.5.2-1.7.4-2.8.9-4.3.6-1.8 1.2-3.2 1.2-5.2 0-3-1.5-5-4-5-1.5 0-3 1-4.5 2.5Z"/>
+          </svg>
+        </span>
+        <div class="marca-texto">
+          <h1>Questões de Concurso</h1>
+          <p>Auxiliar de Saúde Bucal</p>
+        </div>
+      </div>
+      <a class="btn btn-fantasma btn-pequeno" href="/">← Voltar ao app</a>
+    </header>
+
+    <section class="cartao">
+      <div class="abas abas-conta" id="abas-conta" role="tablist">
+        <button type="button" class="aba ativa" data-modo="entrar" role="tab">Entrar</button>
+        <button type="button" class="aba" data-modo="criar" role="tab">Criar conta</button>
+      </div>
+
+      <p class="destaque-texto" id="conta-descricao">Entre para acompanhar suas questões respondidas, seus acertos por tema e suas anotações em qualquer aparelho.</p>
+
+      <p class="aviso-vazio" id="conta-erro" hidden></p>
+      <p class="retorno retorno-certo" id="conta-sucesso" hidden></p>
+
+      <form class="formulario" id="formulario-conta" novalidate>
+        <label class="campo" for="campo-nome" id="linha-nome" hidden>
+          <span>Seu nome</span>
+          <input type="text" id="campo-nome" name="nome" autocomplete="name" maxlength="120" placeholder="Como quer ser chamado(a)">
+        </label>
+        <label class="campo" for="campo-email">
+          <span>E-mail</span>
+          <input type="email" id="campo-email" name="email" autocomplete="email" required placeholder="voce@email.com">
+        </label>
+        <label class="campo" for="campo-senha">
+          <span>Senha</span>
+          <input type="password" id="campo-senha" name="senha" autocomplete="current-password" required minlength="6" placeholder="pelo menos 6 caracteres">
+        </label>
+        <div class="acoes">
+          <button type="submit" class="btn btn-primario" id="btn-enviar">Entrar</button>
+          <button type="button" class="btn-link" id="btn-esqueci">Esqueci minha senha</button>
+        </div>
+      </form>
+
+      <p class="nota" id="conta-nota">Ao criar a conta você concorda em usar o app apenas para estudos. As notas de dificuldade das questões continuam públicas e sem vínculo com a sua conta.</p>
+    </section>
+
+    <footer class="rodape">
+      <p>Questões de provas reais para <strong>Auxiliar de Saúde Bucal</strong>.</p>
+      <p class="rodape-links">
+        <a class="btn-link" href="/">Praticar</a>
+        <a class="btn-link" href="/dashboard">📊 Painel de análise</a>
+      </p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

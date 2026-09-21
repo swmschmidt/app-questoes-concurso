@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Suas estatísticas · Questões de Concurso</title>
+  <meta name="theme-color" content="#0f766e">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%B7%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v=versao) }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css', v=versao) }}">
+  <script defer src="{{ url_for('static', filename='js/auth.js', v=versao) }}"></script>
+  <script defer src="{{ url_for('static', filename='js/minhas.js', v=versao) }}"></script>
+</head>
+<body>
+  <div class="fundo" aria-hidden="true"></div>
+
+  <div class="app app-largo">
+    <header class="topo">
+      <div class="marca">
+        <span class="marca-icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5.5C10.5 4 9 3 7.5 3 5 3 3.5 5 3.5 8c0 2 .6 3.4 1.2 5.2.5 1.5.7 2.6.9 4.3.2 1.7.7 3.5 1.9 3.5 1.4 0 1.6-2 1.9-3.7.2-1.3.6-2.3 1.6-2.3s1.4 1 1.6 2.3c.3 1.7.5 3.7 1.9 3.7 1.2 0 1.7-1.8 1.9-3.5.2-1.7.4-2.8.9-4.3.6-1.8 1.2-3.2 1.2-5.2 0-3-1.5-5-4-5-1.5 0-3 1-4.5 2.5Z"/>
+          </svg>
+        </span>
+        <div class="marca-texto">
+          <h1>Suas estatísticas</h1>
+          <p id="marca-subtitulo">Auxiliar de Saúde Bucal · seu desempenho</p>
+        </div>
+      </div>
+      <div class="topo-acoes">
+        <a class="btn btn-fantasma btn-pequeno" href="/">← Praticar</a>
+        <a class="btn btn-fantasma btn-pequeno" href="/dashboard">📊 Painel</a>
+        <button type="button" class="btn btn-fantasma btn-pequeno" id="btn-sair" hidden>Sair</button>
+      </div>
+    </header>
+
+    <section class="cartao" id="cartao-deslogado" hidden>
+      <h2>Entre para ver suas estatísticas</h2>
+      <p class="destaque-texto">Com uma conta você acompanha as questões que já respondeu, seus acertos por tema e suas anotações — em qualquer aparelho.</p>
+      <div class="acoes">
+        <a class="btn btn-primario" href="/entrar">Entrar</a>
+        <a class="btn btn-secundario" href="/entrar?modo=criar">Criar conta</a>
+      </div>
+    </section>
+
+    <div id="conteudo" hidden>
+      <section class="cartao">
+        <h2>Resumo <span class="contador" id="usuario-identificacao"></span></h2>
+        <div class="kpis" id="kpis"></div>
+      </section>
+
+      <div class="grade-2">
+        <div class="cartao">
+          <h2>Temas que você mais acerta</h2>
+          <p class="nota">Tópicos com pelo menos 3 questões respondidas, ordenados pelo seu aproveitamento.</p>
+          <div class="linhas" id="lista-acertos"></div>
+        </div>
+        <div class="cartao">
+          <h2>Temas que você mais erra</h2>
+          <p class="nota">Os mesmos tópicos vistos pelo lado que precisa de revisão.</p>
+          <div class="linhas" id="lista-erros"></div>
+        </div>
+      </div>
+
+      <div class="cartao">
+        <h2>Aproveitamento por disciplina</h2>
+        <div class="linhas" id="lista-disciplinas"></div>
+      </div>
+
+      <section class="cartao" id="respondidas">
+        <h2>Questões que você respondeu <span class="contador" id="total-respondidas"></span></h2>
+        <div class="filtros">
+          <label class="campo" for="f-resultado"><span>Resultado</span>
+            <select id="f-resultado">
+              <option value="">todas</option>
+              <option value="acertos">só acertos</option>
+              <option value="erros">só erros</option>
+            </select>
+          </label>
+          <label class="campo" for="f-disciplina"><span>Disciplina</span><select id="f-disciplina"></select></label>
+          <label class="campo" for="f-topico"><span>Tópico</span><select id="f-topico"></select></label>
+          <label class="campo campo-largo" for="f-busca"><span>Busca no enunciado</span>
+            <input type="search" id="f-busca" placeholder="ex.: flúor, esterilização...">
+          </label>
+        </div>
+        <div class="linhas" id="lista-questoes"></div>
+        <div class="acoes acoes-paginacao">
+          <button type="button" class="btn btn-fantasma btn-pequeno" id="pg-anterior">← Anterior</button>
+          <span class="nota" id="pg-info"></span>
+          <button type="button" class="btn btn-fantasma btn-pequeno" id="pg-proxima">Próxima →</button>
+        </div>
+      </section>
+
+      <section class="cartao" id="anotacoes">
+        <h2>Suas anotações <span class="contador" id="total-anotacoes"></span></h2>
+        <p class="nota">Lembretes que você salvou nas questões. Diferentes dos relatos de erro, que são enviados para revisão do banco.</p>
+        <div class="linhas" id="lista-anotacoes"></div>
+      </section>
+    </div>
+
+    <footer class="rodape">
+      <p>Questões de provas reais para <strong>Auxiliar de Saúde Bucal</strong>.</p>
+      <p class="rodape-links">
+        <a class="btn-link" href="/">Praticar</a>
+        <a class="btn-link" href="/dashboard">📊 Painel de análise</a>
+      </p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

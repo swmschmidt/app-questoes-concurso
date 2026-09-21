@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# artefatos gerados no build (scripts/gerar_payload.py)
+dados/
+
+# credenciais: nunca versionar
+*firebase-adminsdk*.json
+serviceAccount*.json
+google-services.json
+.env.*
+*.pem

@@ -1,0 +1,65 @@
+name: Deploy no Fly.io
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-fly
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Testes de sintaxe e deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Verificar sintaxe do Python
+        run: |
+          python -m compileall -q app.py questoes_bank.py scripts
+          python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('app.py','questoes_bank.py')]"
+
+      - name: Gerar artefatos do banco (valida o questoes.json)
+        run: python scripts/gerar_payload.py
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verificar sintaxe do JavaScript
+        run: |
+          for arquivo in static/js/*.js; do node --check "$arquivo"; done
+
+      - name: Configurar flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy
+        run: flyctl deploy --remote-only --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Verificar se o app respondeu
+        run: |
+          for tentativa in 1 2 3 4 5 6; do
+            if curl -fsS --max-time 60 https://app-questoes-concurso.fly.dev/healthz; then
+              echo "app no ar"
+              exit 0
+            fi
+            echo "aguardando o app acordar (tentativa $tentativa)..."
+            sleep 10
+          done
+          echo "o app não respondeu a tempo" >&2
+          exit 1

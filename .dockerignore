@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.git/
+.gitignore
+fly.toml
+*.md
+dados/
+*firebase-adminsdk*.json
+serviceAccount*.json
