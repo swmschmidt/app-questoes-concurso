@@ -1,10 +1,13 @@
 # App Questões — Concurso de Auxiliar de Saúde Bucal
 
+[![Deploy no Fly.io](https://github.com/swmschmidt/app-questoes-concurso/actions/workflows/deploy.yml/badge.svg)](https://github.com/swmschmidt/app-questoes-concurso/actions/workflows/deploy.yml)
+
 Aplicativo web para praticar questões de concursos públicos de **Auxiliar de Saúde Bucal**:
 questões reais de provas, correção imediata, sem repetição, avaliação de dificuldade,
 anotações pessoais, painel de análise do banco e estatísticas por usuário.
 
 **No ar:** https://app-questoes-concurso.fly.dev
+**Repositório:** https://github.com/swmschmidt/app-questoes-concurso
 
 ---
 
