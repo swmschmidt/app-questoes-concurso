@@ -63,7 +63,9 @@ anotações pessoais, painel de análise do banco e estatísticas por usuário.
 
 ### Conta (`/entrar`)
 
-- Login e criação de conta com e-mail/senha (Firebase Authentication) e redefinição de senha por e-mail.
+- Login e criação de conta com **e-mail/senha** e com **Google** (Firebase Authentication),
+  além de redefinição de senha por e-mail.
+- Mesmo tema claro/escuro do resto do app e o mesmo visual de botões/cartões.
 
 ---
 
@@ -145,6 +147,7 @@ python scripts/importar_dashboard.py --dsn "$DATABASE_URL" \
 | `JWT_SECRET` | sim | assinatura dos tokens de acesso (HS256) |
 | `FIREBASE_API_KEY` | sim (para login) | chave pública do app web do Firebase, usada na API REST do Identity Toolkit |
 | `FIREBASE_PROJECT_ID` | sim (para login) | id do projeto Firebase |
+| `FIREBASE_APP_ID` | não | id do app web do Firebase (usado pelo SDK no login com Google) |
 | `PERMITIR_GERAR_PAYLOAD` | não | `0` no container: falha com erro claro se os artefatos faltarem, em vez de tentar parsear o JSON |
 | `PORT` | não | porta do servidor (padrão 8080) |
 
@@ -199,6 +202,9 @@ o acesso é feito pelo backend com a conexão direta.
 - **Cadastro/login**: o backend chama a API REST do Firebase (`accounts:signUp` /
   `accounts:signInWithPassword`) com a `FIREBASE_API_KEY`. A senha vai direto para o Google;
   o app nunca a armazena.
+- **Login com Google**: o navegador usa o SDK do Firebase (`signInWithPopup`, com
+  `signInWithRedirect` de reserva) e envia o ID token do Google para `POST /api/auth/google`;
+  o backend valida esse token via `accounts:signInWithIdp` e cria a sessão do app.
 - **Token de acesso**: JWT HS256 (`sub`, `email`, `nome`, `tipo=acesso`), validade de **30 minutos**,
   guardado apenas em memória no navegador (não vai para `localStorage`).
 - **Refresh token**: string aleatória de 256 bits, guardada como hash SHA-256 em `sessoes`, enviada em
@@ -228,7 +234,7 @@ De conta (`Authorization: Bearer <token>`):
 
 | Rota | Descrição |
 |---|---|
-| `POST /api/auth/registrar` · `/login` · `/refresh` · `/logout` · `/senha` · `GET /api/auth/eu` | sessão |
+| `POST /api/auth/registrar` · `/login` · `/google` · `/refresh` · `/logout` · `/senha` · `GET /api/auth/eu` | sessão |
 | `GET/POST/DELETE /api/anotacoes[/<id>]` | anotações do usuário |
 | `GET/POST/DELETE /api/minhas/respostas` | histórico de respostas (e `POST /lote` para importar o progresso local) |
 | `GET /api/minhas/resumo` · `/questoes` · `/anotacoes` | estatísticas pessoais |
@@ -293,7 +299,8 @@ static/
   js/app.js                   prática
   js/dashboard.js             painel
   js/minhas.js                estatísticas
-  js/entrar.js                login/cadastro
+  js/entrar.js                login/cadastro (e-mail/senha e Google)
+  js/tema.js                  tema claro/escuro compartilhado (roda antes da renderização)
 scripts/
   schema.sql                  DDL completo (idempotente)
   gerar_payload.py            gera dados/*.gz a partir do questoes.json

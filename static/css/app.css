@@ -811,6 +811,43 @@ select:focus-visible {
   color: var(--texto-suave);
 }
 
+.abas {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  background: var(--superficie);
+  box-shadow: var(--sombra-suave);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.aba {
+  flex: 1 0 auto;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 650;
+  white-space: nowrap;
+  color: var(--texto-suave);
+  background: transparent;
+  border: 0;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: var(--transicao);
+}
+
+.aba:hover {
+  color: var(--texto);
+  background: var(--superficie-2);
+}
+
+.aba.ativa {
+  color: var(--primaria-contraste);
+  background: linear-gradient(140deg, var(--primaria-clara), var(--primaria-forte));
+}
+
 .app-estreito {
   width: min(560px, 100%);
 }
@@ -847,6 +884,60 @@ select:focus-visible {
 .formulario input:focus {
   outline: 2px solid var(--foco);
   outline-offset: 1px;
+}
+
+.formulario .acoes {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.formulario .btn {
+  width: 100%;
+}
+
+.formulario-divisor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  font-size: .74rem;
+  font-weight: 650;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.formulario-divisor::before,
+.formulario-divisor::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--borda);
+}
+
+.btn-google {
+  width: 100%;
+  gap: 10px;
+  color: var(--texto);
+  background: var(--superficie-2);
+  border-color: var(--borda);
+}
+
+.btn-google:hover {
+  border-color: var(--borda-forte);
+  background: var(--superficie-3);
+  transform: translateY(-1px);
+}
+
+.btn-google svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+.conta-rodape {
+  margin: 16px 0 0;
+  text-align: center;
 }
 
 .area-conta {

@@ -1,7 +1,6 @@
 (() => {
   "use strict";
 
-  const CHAVE_TEMA = "aq-asb:tema:v1";
   const NOMES_FORMATO = {
     simples: "Simples",
     afirmativas: "Afirmativas",
@@ -792,12 +791,6 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function aplicarTema(tema) {
-    const prefereEscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const escuro = tema === "escuro" || (tema === "auto" && prefereEscuro);
-    document.documentElement.dataset.tema = escuro ? "escuro" : "claro";
-  }
-
   async function copiar(texto) {
     try {
       await navigator.clipboard.writeText(texto);
@@ -879,15 +872,6 @@
       }
     });
 
-    el.btnTema.addEventListener("click", () => {
-      const temaAtual = document.documentElement.dataset.tema === "escuro" ? "claro" : "escuro";
-      try {
-        window.localStorage.setItem(CHAVE_TEMA, temaAtual);
-      } catch (erro) {
-        /* modo privado */
-      }
-      aplicarTema(temaAtual);
-    });
   }
 
   async function iniciar() {
@@ -942,14 +926,6 @@
       await carregarTopico();
     }
   }
-
-  let temaSalvo = "auto";
-  try {
-    temaSalvo = window.localStorage.getItem(CHAVE_TEMA) || "auto";
-  } catch (erro) {
-    temaSalvo = "auto";
-  }
-  aplicarTema(temaSalvo);
 
   iniciar().catch((erro) => {
     document.querySelector("main").insertAdjacentHTML(

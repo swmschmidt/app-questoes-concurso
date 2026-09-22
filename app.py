@@ -64,6 +64,7 @@ TTL_REFRESH = timedelta(days=30)
 NOME_COOKIE_REFRESH = "aq_refresh"
 FIREBASE_API_KEY = os.environ.get("FIREBASE_API_KEY", "").strip()
 FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "").strip()
+FIREBASE_APP_ID = os.environ.get("FIREBASE_APP_ID", "").strip()
 CACHE_PAYLOAD = "public, max-age=86400, immutable"
 TAMANHO_MINIMO_GZIP = 900
 NIVEIS_MIN = 1
@@ -1142,6 +1143,9 @@ MENSAGENS_FIREBASE = {
     "OPERATION_NOT_ALLOWED": ("O login por e-mail e senha não está habilitado no projeto Firebase.", 503, "auth_indisponivel"),
     "API_KEY_INVALID": ("Configuração de autenticação inválida no servidor.", 503, "auth_indisponivel"),
     "PROJECT_NOT_FOUND": ("Configuração de autenticação inválida no servidor.", 503, "auth_indisponivel"),
+    "INVALID_IDP_RESPONSE": ("Não conseguimos validar sua conta Google. Tente entrar de novo.", 401, "google_invalido"),
+    "FEDERATED_USER_ID_ALREADY_LINKED": ("Essa conta Google já está vinculada a outro usuário.", 409, "conta_vinculada"),
+    "INVALID_PROVIDER_ID": ("Login com Google indisponível neste projeto.", 503, "auth_indisponivel"),
 }
 
 
@@ -1401,9 +1405,46 @@ def api_auth_senha() -> Response:
     return jsonify({"ok": True, "mensagem": "Se o e-mail estiver cadastrado, enviamos um link para redefinir a senha."})
 
 
+@app.post("/api/auth/google")
+def api_auth_google() -> Response:
+    corpo = request.get_json(silent=True) or {}
+    token_google = str(corpo.get("id_token") or "").strip()
+    if not token_google:
+        raise ErroAuth("Não recebemos o token do Google. Tente de novo.", 400, "token_ausente")
+
+    dados = chamar_firebase(
+        "accounts:signInWithIdp",
+        {
+            "postBody": f"id_token={token_google}&providerId=google.com",
+            "requestUri": url_for("pagina_entrar", _external=True),
+            "returnSecureToken": True,
+        },
+    )
+    email = normalizar_email(dados.get("email"))
+    if not email_valido(email):
+        raise ErroAuth("Não conseguimos ler o e-mail da sua conta Google.", 400, "email_ausente")
+    nome = str(dados.get("displayName") or "").strip()[:TAMANHO_MAX_NOME]
+    usuario = buscar_ou_criar_usuario(email, nome or None, dados.get("localId"))
+    return responder_sessao(usuario, "Bem-vindo(a)!")
+
+
 @app.get("/entrar")
 def pagina_entrar() -> str:
-    return render_template("entrar.html", versao=VERSAO_ESTATICOS)
+    return render_template(
+        "entrar.html",
+        versao=VERSAO_ESTATICOS,
+        auth_disponivel=firebase_configurado(),
+        firebase_config=(
+            {
+                "apiKey": FIREBASE_API_KEY,
+                "authDomain": f"{FIREBASE_PROJECT_ID}.firebaseapp.com",
+                "projectId": FIREBASE_PROJECT_ID,
+                "appId": FIREBASE_APP_ID,
+            }
+            if firebase_configurado()
+            else None
+        ),
+    )
 
 
 @app.get("/minhas-estatisticas")

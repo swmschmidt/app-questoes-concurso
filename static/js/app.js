@@ -10,7 +10,6 @@
   for (let nota = config.niveis.min; nota <= config.niveis.max; nota += 1) NOTAS.push(nota);
 
   const CHAVE_PROGRESSO = "aq-asb:progresso:v1";
-  const CHAVE_TEMA = "aq-asb:tema:v1";
   const TOLERANCIA_ESCALA = 10;
 
   const el = {};
@@ -1120,25 +1119,6 @@
     }
   });
 
-  function aplicarTema(tema) {
-    const prefereEscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const escuro = tema === "escuro" || (tema === "auto" && prefereEscuro);
-    document.documentElement.dataset.tema = escuro ? "escuro" : "claro";
-    const cor = escuro ? "#080d16" : "#eef2f8";
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", cor);
-  }
-
-  el.btnTema.addEventListener("click", () => {
-    const temaAtual = document.documentElement.dataset.tema === "escuro" ? "claro" : "escuro";
-    gravar(CHAVE_TEMA, temaAtual);
-    aplicarTema(temaAtual);
-  });
-
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    if ((ler(CHAVE_TEMA) || "auto") === "auto") aplicarTema("auto");
-  });
-
   function mostrarEstadoInicio(estado) {
     el.inicioCarregando.hidden = estado !== "carregando";
     el.inicioErro.hidden = estado !== "erro";
@@ -1231,7 +1211,6 @@
 
   el.btnRecarregar.addEventListener("click", carregarBanco);
 
-  aplicarTema(ler(CHAVE_TEMA) || "auto");
   mostrarTela("inicio");
   mostrarEstadoInicio("carregando");
   carregarBanco();
